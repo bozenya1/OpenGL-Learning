@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# build
+build/
+dist/
+
+# pliki wykonywalne
+*.out
+*.exe
+
+# obiekty kompilatora
+*.o
+*.obj
