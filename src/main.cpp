@@ -8,7 +8,7 @@
 const GLint WIDHT = 800, HEIGHT = 600;
 
 int main(){
-    if(!glfwInit()){
+    if(glfwInit() != GLEW_OK){
         printf("glfw Inicialize Failed");
         glfwTerminate();
         return 1;
