@@ -8,12 +8,13 @@
 const GLint WIDHT = 800, HEIGHT = 600;
 
 int main(){
-    if(glfwInit() != GLEW_OK){
+    Platform_Init();
+    if(glfwInit() != GLFW_TRUE){
         printf("glfw Inicialize Failed");
         glfwTerminate();
         return 1;
     }
-    OpenGL_Init();
+    OpenGL_Version_Init();
     GLFWwindow *mainWindow = glfwCreateWindow(WIDHT, HEIGHT, "Title", nullptr, nullptr);
     if(!mainWindow){
         printf("Window doesnt create... Failed");
@@ -44,8 +45,6 @@ int main(){
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        printf("%d\n", weightBuffer);
-        printf("%d\n", hightBuffer);
     
         glfwSwapBuffers(mainWindow);
     }
