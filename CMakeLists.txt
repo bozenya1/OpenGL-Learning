@@ -14,10 +14,12 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenGL::GL
     GLEW::GLEW
+    glm::glm
     glfw
 )
