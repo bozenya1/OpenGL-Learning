@@ -6,7 +6,7 @@
 //OpenGL includes
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <GLFW/glfw3.h>s
+#include <GLFW/glfw3.h>
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
