@@ -5,31 +5,40 @@
 
 //OpenGL includes
 #include <GL/glew.h>
-#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+
+//glm includes
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
+const float speed = 2.f,
+            rotationAngle = 120.f;
+float lastTime = 0.f,
+        deltaTime = 0.f,
+        currentTime = 0.f;
 bool direction = true;
 
 float triOffset = 0.f,
         triMaxOffset = 0.6f,
-        triIncretiment = 0.0005f;
+        triIncretiment = 0.005f;
 
 GLuint  VAO = 0, 
         VBO = 0, 
         EBO = 0, 
         shader = 0,
-        uniformXMove = 0;
+        uniformModel = 0;
 
 static const char* vShader = 
 "#version 330 core\n\
 layout(location = 0) in vec3 aPos;\n\
 layout(location = 1) in vec3 aColor;\n\
 out vec3 OutColor;\n\
-uniform float XMove;\n\
+uniform mat4 model;\n\
 void main(){\n\
-    gl_Position = vec4(0.4f * aPos.x + XMove, 0.4f * aPos.y, 0.4f * aPos.z, 1.0);\n\
+    gl_Position = model * vec4(0.4f * aPos.x, 0.4f * aPos.y, 0.4f * aPos.z, 1.0);\n\
     OutColor = aColor;\n\
 }\n" ;
 
@@ -136,7 +145,7 @@ void CompileShader(){
         printf("Error validating program:\n%s", eLog);
         return;
     }
-    uniformXMove = glGetUniformLocation(shader, "XMove");
+    uniformModel = glGetUniformLocation(shader, "model");
 }
 void processInput(GLFWwindow* window){
     if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
@@ -144,6 +153,36 @@ void processInput(GLFWwindow* window){
     }
     if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+}
+void MoveUpAndDown(GLFWwindow*window, glm::mat4& model, float speed, float deltaTime){
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+        model = glm::translate(
+                model, 
+                glm::vec3(0.f, speed * deltaTime, 0.f)
+        );
+    }
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+        model = glm::translate(
+                model, 
+                glm::vec3(0.f, -speed * deltaTime, 0.f)
+        );
+    }
+}
+void Rotate(GLFWwindow*window, glm::mat4& model, float RotationAngle, float deltaTime){
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+        model = glm::rotate(
+                model,
+                glm::radians(-RotationAngle) * deltaTime,
+                glm::vec3(0.f, 0.f, 1.f)
+        );
+    }
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+        model = glm::rotate(
+                model,
+                glm::radians(RotationAngle) * deltaTime,
+                glm::vec3(0.f, 0.f, 1.f)
+        );
     }
 }
 int main(){
@@ -185,26 +224,34 @@ int main(){
     );
     CompileShader();
     CreateTriangle();
+    lastTime = 0.f;
     while(!glfwWindowShouldClose(mainWindow)){
         glfwPollEvents();
 
-        if(direction){
-            triOffset += triIncretiment;
-
-        } else {
-            triOffset -= triIncretiment;
-        }
-
-        if(std::abs(triOffset) >= triMaxOffset){
-            direction = !direction;
-        }
+        currentTime = glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader);
 
-        glUniform1f(uniformXMove, triOffset);
+        static glm::mat4 model(1.f);
+        Rotate(mainWindow, model, rotationAngle, deltaTime);
+        MoveUpAndDown(mainWindow, model, speed, deltaTime);
+        /*model = glm::rotate(
+            model,
+            triOffset, 
+            glm::vec3(0.f, 1.f, 0.f)
+        );*/
+
+        glUniformMatrix4fv(
+            uniformModel, 
+            1, 
+            GL_FALSE,
+            glm::value_ptr(model)
+        );
 
         glBindVertexArray(VAO);
 
