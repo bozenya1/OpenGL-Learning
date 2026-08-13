@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 //OpenGL includes
 #include <GL/glew.h>
@@ -31,24 +34,16 @@ GLuint  VAO = 0,
         shader = 0,
         uniformModel = 0;
 
-static const char* vShader = 
-"#version 330 core\n\
-layout(location = 0) in vec3 aPos;\n\
-layout(location = 1) in vec3 aColor;\n\
-out vec3 OutColor;\n\
-uniform mat4 model;\n\
-void main(){\n\
-    gl_Position = model * vec4(0.4f * aPos.x, 0.4f * aPos.y, 0.4f * aPos.z, 1.0);\n\
-    OutColor = aColor;\n\
-}\n" ;
-
-static const char* fShader = 
-"#version 330 core\n\
-out vec4 FragColor;\n\
-in vec3 OutColor;\n\
-void main(){\n\
-    FragColor = vec4(OutColor, 1.0f);\n\
-}\n";
+std::string loadShaderSource(const char* filePath){
+    std::ifstream file(filePath);
+    if(!file.is_open()){
+        printf("file doesnt open");
+        return "";
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 void AddShader(GLuint theProgram, const char* shaderCode, GLenum shaderType){
     GLuint theShader = glCreateShader(shaderType);
     
@@ -118,14 +113,22 @@ void CreateTriangle(){
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
-void CompileShader(){
+void CompileShader(const char* vPath, const char* fPath){
+    std::string vCode = loadShaderSource(vPath);
+    std::string fCode = loadShaderSource(fPath);
+
+    if(vCode.empty() || fCode.empty()){
+        printf("File is empty");
+        return;
+    }
+
     shader = glCreateProgram();
     if(!shader){
         printf("Shader creation failed!");
         return;
     }
-    AddShader(shader, vShader, GL_VERTEX_SHADER);
-    AddShader(shader, fShader, GL_FRAGMENT_SHADER);
+    AddShader(shader, vCode.c_str(), GL_VERTEX_SHADER);
+    AddShader(shader, fCode.c_str(), GL_FRAGMENT_SHADER);
 
     GLint result = 0;
     GLchar eLog[1024] = {0};
@@ -222,7 +225,7 @@ int main(){
         bufferWidth, 
         bufferHeight
     );
-    CompileShader();
+    CompileShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
     CreateTriangle();
     lastTime = 0.f;
     while(!glfwWindowShouldClose(mainWindow)){
