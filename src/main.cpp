@@ -17,16 +17,12 @@
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
-const float speed = 2.f,
-            rotationAngle = 120.f;
+const float speed = 2.75f,
+            rotationAngle = 100.f;
 float lastTime = 0.f,
         deltaTime = 0.f,
         currentTime = 0.f;
-bool direction = true;
-
-float triOffset = 0.f,
-        triMaxOffset = 0.6f,
-        triIncretiment = 0.005f;
+bool isScale = false;
 
 GLuint  VAO = 0, 
         VBO = 0, 
@@ -240,14 +236,11 @@ int main(){
 
         glUseProgram(shader);
 
-        static glm::mat4 model(1.f);
+        
+        static glm::mat4 model = glm::scale(glm::mat4(1.f), glm::vec3(0.4f, 0.4f, 1.f));
+        
         Rotate(mainWindow, model, rotationAngle, deltaTime);
         MoveUpAndDown(mainWindow, model, speed, deltaTime);
-        /*model = glm::rotate(
-            model,
-            triOffset, 
-            glm::vec3(0.f, 1.f, 0.f)
-        );*/
 
         glUniformMatrix4fv(
             uniformModel, 
