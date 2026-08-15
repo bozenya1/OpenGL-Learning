@@ -19,6 +19,7 @@ const GLint WIDTH = 800, HEIGHT = 600;
 
 const float speed = 2.75f,
             rotationAngle = 100.f;
+
 float lastTime = 0.f,
         deltaTime = 0.f,
         currentTime = 0.f;
@@ -154,17 +155,17 @@ void processInput(GLFWwindow* window){
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
-void MoveUpAndDown(GLFWwindow*window, glm::mat4& model, float speed, float deltaTime){
+void MoveUpAndDown(GLFWwindow*window, glm::mat4& model, float speed, float deltaTime, glm::vec3 PlayerPos){
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
         model = glm::translate(
                 model, 
-                glm::vec3(0.f, speed * deltaTime, 0.f)
+                glm::vec3(PlayerPos)
         );
     }
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
         model = glm::translate(
                 model, 
-                glm::vec3(0.f, -speed * deltaTime, 0.f)
+                glm::vec3(-PlayerPos)
         );
     }
 }
@@ -223,6 +224,7 @@ int main(){
     );
     CompileShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
     CreateTriangle();
+    CreateTriangle();
     lastTime = 0.f;
     while(!glfwWindowShouldClose(mainWindow)){
         glfwPollEvents();
@@ -236,11 +238,12 @@ int main(){
 
         glUseProgram(shader);
 
+        glm::vec3 playerPos(0.f, speed * deltaTime, 0.f);
         
         static glm::mat4 model = glm::scale(glm::mat4(1.f), glm::vec3(0.4f, 0.4f, 1.f));
         
         Rotate(mainWindow, model, rotationAngle, deltaTime);
-        MoveUpAndDown(mainWindow, model, speed, deltaTime);
+        MoveUpAndDown(mainWindow, model, speed, deltaTime, playerPos);
 
         glUniformMatrix4fv(
             uniformModel, 
